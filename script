@@ -1,0 +1,72 @@
+using System;
+using System.Threading;
+
+class GameOfLife
+{
+    const int Rows = 20;
+    const int Cols = 40;
+    const int Generations = 100;
+    const int Delay = 200;
+
+    static void Main()
+    {
+        bool[,] grid = new bool[Rows, Cols];
+        Random rand = new Random();
+
+        for (int y = 0; y < Rows; y++)
+            for (int x = 0; x < Cols; x++)
+                grid[y, x] = rand.NextDouble() < 0.3;
+
+        for (int gen = 0; gen < Generations; gen++)
+        {
+            Console.Clear();
+            PrintGrid(grid);
+            grid = NextGeneration(grid);
+            Thread.Sleep(Delay);
+        }
+    }
+
+    static void PrintGrid(bool[,] grid)
+    {
+        for (int y = 0; y < grid.GetLength(0); y++)
+        {
+            for (int x = 0; x < grid.GetLength(1); x++)
+                Console.Write(grid[y, x] ? "O" : ".");
+            Console.WriteLine();
+        }
+    }
+
+    static bool[,] NextGeneration(bool[,] grid)
+    {
+        bool[,] newGrid = new bool[Rows, Cols];
+
+        for (int y = 0; y < Rows; y++)
+        {
+            for (int x = 0; x < Cols; x++)
+            {
+                int neighbors = CountAliveNeighbors(grid, y, x);
+                if (grid[y, x])
+                    newGrid[y, x] = neighbors == 2 || neighbors == 3;
+                else
+                    newGrid[y, x] = neighbors == 3;
+            }
+        }
+
+        return newGrid;
+    }
+
+    static int CountAliveNeighbors(bool[,] grid, int row, int col)
+    {
+        int count = 0;
+        for (int y = row - 1; y <= row + 1; y++)
+        {
+            for (int x = col - 1; x <= col + 1; x++)
+            {
+                if (y == row && x == col) continue;
+                if (y >= 0 && y < Rows && x >= 0 && x < Cols)
+                    if (grid[y, x]) count++;
+            }
+        }
+        return count;
+    }
+}
